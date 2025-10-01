@@ -1,0 +1,20 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  .boton-reiniciar {
+    font-size: 30px;
+    padding: 15px 30px;
+    background-color: #FF6961;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .boton-reiniciar:hover {
+    background-color: #ff4c4c;
+  }
