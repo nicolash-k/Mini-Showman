@@ -22,13 +22,15 @@ let preguntas = [
 ];
 
 function setup() {
-  createCanvas(1395, 615);
+  createCanvas(1395, 1750);
   textAlign(CENTER, CENTER);
 
   botonReiniciar = createButton("Reiniciar");
   botonReiniciar.position(width / 2 - 80, height - 130);
   botonReiniciar.mousePressed(reiniciarJuego);
   botonReiniciar.hide();
+
+  // 👇 Le aplico clase CSS
   botonReiniciar.addClass("boton-reiniciar");
 }
 
@@ -112,7 +114,7 @@ function draw() {
 }
 
 function dibujarContador() { 
-  textSize(40);
+  textSize(20);
   fill("#393E46");
   rect(width/2 - 200, 100, 400, 60, 10);
   fill("#77DD77");
@@ -165,6 +167,7 @@ function mousePressed() {
     }
   }
 }
+
 function jugarRonda() {
   if (
     (jugador === "Piedra" && computadora === "Tijera") ||
@@ -181,6 +184,7 @@ function jugarRonda() {
     preguntaActual = random(preguntas);
   }
 }
+
 function reiniciarJuego() {
   puntosJugador = 0;
   puntosComputadora = 0;
