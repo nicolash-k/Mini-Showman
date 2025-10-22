@@ -30,7 +30,7 @@ function calculateLayout() {
 function createButtons() {
   // Botón Pedir Carta
   hitButton = createButton('Pedir Carta (P)');
-  hitButton.position(marginX, height - 80);
+  hitButton.position(marginX + 720, height - 80);
   hitButton.size(150, 40);
   hitButton.mousePressed(hit);
   hitButton.style('font-size', '16px');
@@ -41,7 +41,7 @@ function createButtons() {
   
   // Botón Plantarse
   standButton = createButton('Plantarse (S)');
-  standButton.position(marginX + 160, height - 80);
+  standButton.position(marginX + 880, height - 80);
   standButton.size(150, 40);
   standButton.mousePressed(stand);
   standButton.style('font-size', '16px');
@@ -52,7 +52,7 @@ function createButtons() {
   
   // Botón Reiniciar
   restartButton = createButton('Reiniciar (R)');
-  restartButton.position(marginX + 320, height - 80);
+  restartButton.position(marginX + 1040, height - 80);
   restartButton.size(150, 40);
   restartButton.mousePressed(initGame);
   restartButton.style('font-size', '16px');
@@ -99,7 +99,7 @@ function draw() {
   }
 
   fill(255);
-  text("Tu puntaje: " + handValue(playerHand), marginX + 200, height - marginY - 130);
+  text("Tu puntaje: " + handValue(playerHand), marginX, height - marginY - 180);
 
   if (gameOver) {
     fill(255);
