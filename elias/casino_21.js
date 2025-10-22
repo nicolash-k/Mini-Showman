@@ -3,6 +3,7 @@ let playerHand = [];
 let dealerHand = [];
 let gameOver = false;
 let playerTurn = true;
+let showMenu = true;
 
 let cardWidth, cardHeight, cardSpacing;
 let marginX, marginY;
@@ -10,6 +11,7 @@ let advice = "";
 
 // Botones
 let hitButton, standButton, restartButton;
+let startButton;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -28,6 +30,18 @@ function calculateLayout() {
 }
 
 function createButtons() {
+  // Botón Iniciar Juego (en el menú)
+  startButton = createButton('Comenzar Juego');
+  startButton.position(width/2 - 75, height/2 + 50);
+  startButton.size(150, 50);
+  startButton.mousePressed(startGame);
+  startButton.style('font-size', '18px');
+  startButton.style('background-color', '#4CAF50');
+  startButton.style('color', 'white');
+  startButton.style('border', 'none');
+  startButton.style('border-radius', '8px');
+  startButton.style('box-shadow', '0 4px 8px rgba(0,0,0,0.2)');
+  
   // Botón Pedir Carta
   hitButton = createButton('Pedir Carta (P)');
   hitButton.position(marginX + 720, height - 80);
@@ -58,8 +72,21 @@ function createButtons() {
   restartButton.style('font-size', '16px');
   restartButton.style('background-color', '#008CBA');
   restartButton.style('color', 'white');
-  standButton.style('border', 'none');
-  standButton.style('border-radius', '5px');
+  restartButton.style('border', 'none');
+  restartButton.style('border-radius', '5px');
+  
+  // Ocultar botones del juego inicialmente
+  hitButton.hide();
+  standButton.hide();
+  restartButton.hide();
+}
+
+function startGame() {
+  showMenu = false;
+  startButton.hide();
+  hitButton.show();
+  standButton.show();
+  restartButton.show();
 }
 
 function draw() {
@@ -68,6 +95,11 @@ function draw() {
   if (width !== windowWidth || height !== windowHeight) {
     calculateLayout();
     updateButtonPositions();
+  }
+  
+  if (showMenu) {
+    drawMenu();
+    return;
   }
   
   // Actualizar consejos
@@ -104,9 +136,34 @@ function draw() {
   if (gameOver) {
     fill(255);
     textSize(26);
-    text(checkWinner(), width / 2 - 100, height / 2);
+    textAlign(CENTER);
+    text(checkWinner(), width / 2, height / 2);
+    textAlign(LEFT);
     textSize(20);
   }
+}
+
+function drawMenu() {
+  // Fondo del menú
+  fill(0, 0, 0, 200);
+  rect(0, 0, width, height);
+  
+  // Título del juego
+  fill(255);
+  textSize(48);
+  textAlign(CENTER, CENTER);
+  text("BLACKJACK", width/2, height/2 - 100);
+  
+  // Subtítulo
+  textSize(24);
+  text("Juego de 21", width/2, height/2 - 40);
+  
+  // Instrucciones
+  textSize(18);
+  text("Presiona 'Comenzar Juego' para iniciar", width/2, height/2 + 120);
+  
+  // Volver a alineación por defecto
+  textAlign(LEFT, BASELINE);
 }
 
 function drawAdvicePanel() {
@@ -141,7 +198,7 @@ function drawAdvicePanel() {
     text("Turno del dealer...", panelX, panelY + 30);
   }
   
-  textSize(20); // Volver al tamaño original
+  textSize(20);
 }
 
 function giveStrategicAdvice() {
@@ -200,11 +257,14 @@ function drawCard(card, x, y, hidden) {
     // Patrón para carta oculta
     fill(255);
     textSize(cardWidth * 0.3);
-    text("?", x + cardWidth/2 - 8, y + cardHeight/2 + 10);
+    textAlign(CENTER, CENTER);
+    text("?", x + cardWidth/2, y + cardHeight/2);
+    textAlign(LEFT, BASELINE);
   }
 }
 
 function updateButtonPositions() {
+  startButton.position(width/2 - 75, height/2 + 50);
   hitButton.position(marginX, height - 80);
   standButton.position(marginX + 160, height - 80);
   restartButton.position(marginX + 320, height - 80);
@@ -309,7 +369,7 @@ function checkWinner() {
 
 function keyPressed() {
   // Mantener funcionalidad de teclas para accesibilidad
-  if (!gameOver) {
+  if (!gameOver && !showMenu) {
     if (key === 'p' || key === 'P') {
       hit();
     }
@@ -319,5 +379,9 @@ function keyPressed() {
   }
   if (key === 'r' || key === 'R') {
     initGame();
+  }
+  // Tecla Enter para comenzar desde el menú
+  if (showMenu && (key === 'Enter' || key === ' ')) {
+    startGame();
   }
 }
