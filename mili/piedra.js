@@ -1,5 +1,5 @@
 let opciones = ["Piedra", "Papel", "Tijera"];
-let colores = ["#77DD77", "#FDFD96", "#FFB7B2"];
+let colores = ["#4361ee", "#ffd166", "#f07167"];
 let jugador = "";
 let computadora = "";
 let puntosJugador = 0;
@@ -8,6 +8,11 @@ let empates = 0;
 let botonReiniciar;
 let estado = "inicio";
 let preguntaActual = null;
+
+let animacionJugador = 0;
+let animacionComputadora = 0;
+let animandoJugador = false;
+let animandoComputadora = false;
 
 let preguntas = [
   { q: "¿Qué palabra se usa para declarar una variable en JS?", opciones: ["let", "varname", "declare"], a: "let" },
@@ -22,78 +27,97 @@ let preguntas = [
 ];
 
 function setup() {
-  createCanvas(1395, 1750);
+  createCanvas(1360, 620);
   textAlign(CENTER, CENTER);
 
   botonReiniciar = createButton("Reiniciar");
   botonReiniciar.position(width / 2 - 80, height - 130);
   botonReiniciar.mousePressed(reiniciarJuego);
   botonReiniciar.hide();
-
-  // 👇 Le aplico clase CSS
   botonReiniciar.addClass("boton-reiniciar");
 }
 
 function draw() {
-  background("#000");
+  background("#131212");
 
   if (estado === "inicio") {
-    fill("#FDFD96");
+    fill("#e0e1dd");
     textSize(40);
     text("Piedra, Papel o Tijera", width/2, height/2 - 100);
-
-    fill("#77DD77");
+    fill("#80ed99");
     rect(width/2 - 100, height/2 - 40, 200, 80, 10);
     fill("#000");
     textSize(30);
     text("Iniciar", width/2, height/2);
 
   } else if (estado === "jugando") {
-    fill("#FDFD96");
+    fill("#118ab2");
     textSize(32);
     text("Piedra, Papel o Tijera", width / 2, 50);
 
     dibujarContador();
 
+    // === ANIMACIÓN DEL JUGADOR ===
     if (jugador !== "") {
       let indexJugador = opciones.indexOf(jugador);
+      let t = constrain(animacionJugador, 0, 1);
+      let x = lerp(100, width / 2 - 200, t);
+      let y = lerp(height - 250, height / 2 - 100, t);
+      let tam = lerp(120, 150, sin(t * PI));
       fill(colores[indexJugador]);
-      rect(100, height/2 - 100, 150, 200, 10);
+      rect(x, y, tam, tam + 50, 10);
       fill("#222831");
-      textSize(24);
-      text(jugador, 175, height/2);
+      textSize(24 + sin(t * PI) * 5);
+      text(jugador, x + tam / 2, y + tam / 2);
     }
-
+    // === CARTAS DE OPCIÓN ===
     for (let i = 0; i < opciones.length; i++) {
       fill(colores[i]);
       rect(50 + i * 170, height - 150, 120, 80, 10);
+      fill(colores[i]);
       fill("#222831");
       textSize(18);
       text(opciones[i], 110 + i * 170, height - 110);
     }
-
+    // === ANIMACIÓN DE LA COMPUTADORA ===
     if (computadora !== "") {
       let indexComp = opciones.indexOf(computadora);
+      let t = constrain(animacionComputadora, 0, 1);
+      let x = lerp(width - 250, width / 2 + 100, t);
+      let y = lerp(50, height / 2 - 100, t);
+      let tam = lerp(120, 150, sin(t * PI));
+
       fill(colores[indexComp]);
-      rect(width - 250, height/2 - 100, 150, 200, 10);
+      rect(x, y, tam, tam + 50, 10);
       fill("#222831");
-      textSize(24);
-      text(computadora, width - 175, height/2);
+      textSize(24 + sin(t * PI) * 5);
+      text(computadora, x + tam / 2, y + tam / 2);
     }
 
-    if (puntosJugador === 3 || puntosComputadora === 3) {
+    // ===ACTUALIZAR ANIMACIONES
+    if (animandoJugador) {
+      animacionJugador += 0.05;
+      if (animacionJugador >= 1) animandoJugador = false;
+    }
+
+    if (animandoComputadora) {
+      animacionComputadora += 0.05;
+      if (animacionComputadora >= 1) animandoComputadora = false;
+    }
+
+    if (puntosJugador === 4 || puntosComputadora === 4) {
       estado = "fin";
     }
 
   } else if (estado === "pregunta") {
-    fill("#FFF");
+    fill("#e0e1dd");
     textSize(28);
     text("Empate. Responde la pregunta:", width/2, 100);
     textSize(22);
     text(preguntaActual.q, width/2, 160);
 
     for (let i = 0; i < 3; i++) {
-      fill("#FFD369");
+      fill("#FFD166");
       rect(width/2 - 150, 220 + i * 80, 300, 60, 10);
       fill("#000");
       textSize(20);
@@ -102,26 +126,32 @@ function draw() {
 
   } else if (estado === "fin") {
     noLoop();
-    fill("#FFFF");
+    fill("#e9e1dd");
     textSize(36);
     if (puntosJugador === 3) {
-      text("¡Ganaste la partida!", width / 2, height / 2);
+      text("¡Felicidades, ganaste la partida!", width / 2, height / 2);
     } else {
-      text("Perdiste la partida...", width / 2, height / 2);
+      text("Lo siento, perdiste la partida...", width / 2, height / 2);
     }
     botonReiniciar.show();
   }
 }
 
-function dibujarContador() { 
-  textSize(20);
-  fill("#393E46");
-  rect(width/2 - 200, 100, 400, 60, 10);
-  fill("#77DD77");
+function dibujarContador() {
+  noStroke();
+  fill(30, 30, 30, 200);
+  rect(width/2 - 220, 90, 440, 80, 20);
+  strokeWeight(4);
+  stroke(lerpColor(color("#118ab2"), color("#04303fff"), abs(sin(frameCount * 0.05))));
+  noFill();
+  rect(width/2 - 220, 90, 440, 80, 20);
+  noStroke();
+  fill("#80ed99");
+  textSize(30);
+  textStyle(BOLD);
   text("Jugador: " + puntosJugador, width/2 - 100, 130);
-  fill("#FFB7B2");
+  fill("#f07167");
   text("Computadora: " + puntosComputadora, width/2 + 100, 130);
-  fill("#FFD369"); 
 }
 
 function mousePressed() {
@@ -140,6 +170,10 @@ function mousePressed() {
       ) {
         jugador = opciones[i];
         computadora = random(opciones);
+        animandoJugador = true;
+        animandoComputadora = true;
+        animacionJugador = 0;
+        animacionComputadora = 0;
         jugarRonda();
       }
     }
@@ -167,7 +201,6 @@ function mousePressed() {
     }
   }
 }
-
 function jugarRonda() {
   if (
     (jugador === "Piedra" && computadora === "Tijera") ||
@@ -178,13 +211,11 @@ function jugarRonda() {
   } else if (jugador !== computadora) {
     puntosComputadora++;
   } else if (jugador === computadora) {
-    resultado = "Empate";
     empates++; 
     estado = "pregunta";
     preguntaActual = random(preguntas);
   }
 }
-
 function reiniciarJuego() {
   puntosJugador = 0;
   puntosComputadora = 0;
