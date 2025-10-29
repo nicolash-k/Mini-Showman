@@ -57,7 +57,6 @@ function draw() {
 
     dibujarContador();
 
-    // === ANIMACIÓN DEL JUGADOR ===
     if (jugador !== "") {
       let indexJugador = opciones.indexOf(jugador);
       let t = constrain(animacionJugador, 0, 1);
@@ -70,7 +69,7 @@ function draw() {
       textSize(24 + sin(t * PI) * 5);
       text(jugador, x + tam / 2, y + tam / 2);
     }
-    // === CARTAS DE OPCIÓN ===
+    //cartas
     for (let i = 0; i < opciones.length; i++) {
       fill(colores[i]);
       rect(50 + i * 170, height - 150, 120, 80, 10);
@@ -79,7 +78,7 @@ function draw() {
       textSize(18);
       text(opciones[i], 110 + i * 170, height - 110);
     }
-    // === ANIMACIÓN DE LA COMPUTADORA ===
+   
     if (computadora !== "") {
       let indexComp = opciones.indexOf(computadora);
       let t = constrain(animacionComputadora, 0, 1);
@@ -93,8 +92,6 @@ function draw() {
       textSize(24 + sin(t * PI) * 5);
       text(computadora, x + tam / 2, y + tam / 2);
     }
-
-    // ===ACTUALIZAR ANIMACIONES
     if (animandoJugador) {
       animacionJugador += 0.05;
       if (animacionJugador >= 1) animandoJugador = false;
