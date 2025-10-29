@@ -1,0 +1,70 @@
+body {
+    margin: 0;
+    font-family: 'Comic Sans MS', cursive;
+    background: url('fondo-circo.jpg') no-repeat center center/cover;
+    height: 100vh;
+}
+
+.pantalla {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.oculto {
+    display: none;
+}
+
+.carpa {
+    background: rgba(255, 255, 255, 0.9);
+    border: 5px solid red;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    animation: abrirPuertas 2s ease-in-out;
+}
+
+.registro-form input, .registro-form button {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid red;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.menu {
+    text-align: right;
+}
+
+.juegos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    justify-items: center;
+    margin-top: 30px;
+}
+
+.juegos img {
+    width: 250px;
+    height: 250px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.juegos img:hover {
+    transform: scale(1.1);
+}
+
+@keyframes abrirPuertas {
+    0% { transform: scaleX(0.1); opacity: 0; }
+    100% { transform: scaleX(1); opacity: 1; }
+}
