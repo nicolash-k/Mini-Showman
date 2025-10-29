@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Showman - El Juego del Circo</title>
+    <link rel="stylesheet" href="estilo.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- PANTALLA DE REGISTRO / LOGIN -->
+    <div id="pantalla-registro" class="pantalla">
+        <div class="carpa">
+            <h2>🎪 ¡Bienvenido a Mini Showman!</h2>
+
+            <form action="registro.php" method="POST" class="registro-form">
+                <input type="hidden" name="accion" id="accion" value="registrar">
+                
+                <input type="text" name="nombre_usuario" placeholder="Nombre de usuario" required>
+                <input type="password" name="contrasena" placeholder="Contraseña" required>
+                
+                <button type="submit" id="botonAccion">Registrarse</button>
+            </form>
+
+            <p id="alternar">
+                ¿Ya tienes una cuenta? <a href="#" onclick="toggleModo()">Inicia sesión aquí</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- PANTALLA PRINCIPAL DE JUEGOS -->
+    <div id="pantalla-juegos" class="oculto">
+         <center><h1>Mino Showman</h1></center>
+        <header>
+           
+            <div class="menu">
+                <p id="nombre-usuario"></p>
+                <p id="puntos-usuario">Puntos: 0</p>
+                <button onclick="window.location='ranking.php'">🏆 Ver Ranking</button>
+            </div>
+        </header>
+
+        <section class="juegos">
+            <img src="imagenes/FxA3hc0WAAAd8ld.jpg" onclick="abrirJuego('luchi/index.html')" alt="Juego 1">
+           <img src="imagenes/FxA3hc0WAAAd8ld.jpg" onclick="abrirJuego('juego2.html')" alt="Juego 2">
+            <img src="imagenes/FxA3hc0WAAAd8ld.jpg"  onclick="abrirJuego('juego3.html')" alt="Juego 3">
+            <img src="imagenes/FxA3hc0WAAAd8ld.jpg"  onclick="abrirJuego('juego4.html')" alt="Juego 4">
+           <img src="imagenes/FxA3hc0WAAAd8ld.jpg"  onclick="abrirJuego('juego5.html')" alt="Juego 5">
+           <img src="imagenes/FxA3hc0WAAAd8ld.jpg"  onclick="abrirJuego('juego6.html')" alt="Juego 6">
+        </section>
+    </div>
+
+    <script>
+        function toggleModo() {
+            const accion = document.getElementById("accion");
+            const boton = document.getElementById("botonAccion");
+            const texto = document.getElementById("alternar");
+
+            if (accion.value === "registrar") {
+                accion.value = "iniciar";
+                boton.textContent = "Iniciar sesión";
+                texto.innerHTML = '¿No tienes cuenta? <a href="#" onclick="toggleModo()">Regístrate aquí</a>';
+            } else {
+                accion.value = "registrar";
+                boton.textContent = "Registrarse";
+                texto.innerHTML = '¿Ya tienes una cuenta? <a href="#" onclick="toggleModo()">Inicia sesión aquí</a>';
+            }
+        }
+    </script>
+</body>
+</html>
