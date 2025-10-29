@@ -16,11 +16,16 @@ let checkStartTime = 0;
 let checkDelay = 900;
 
 let revealStartTime = 0;
-let revealDuration = 5000; // 5 segundos
+let revealDuration = 5000;
 let revealing = false;
 
 let backButton;
-let showTutorial = false; // 🔹 Estado del tutorial
+let showTutorial = false;
+
+let spacing = 20;
+let cardSize;
+let cols, rows;
+let gridOffsetX, gridOffsetY;
 
 let allEmojis = [
   "🎲","🎰","🃏","🍒","💎","💰","🎶","♠️","♥️","♦️","♣️",
@@ -28,34 +33,57 @@ let allEmojis = [
   "🐱","🐶","🐸","🐵","🐧","🐢","🐠","🐙","🦋",
   "🚗","✈️","🚀","🚲","🏆","🥇","🎨","🎧","🎤",
   "🍩","🍔","🍕","🍟","🌮","🍣","🍪","🥑","🥕","🥦"
-]; // 50 emojis
+];
 
-let spacing = 20;
-let cardSize;
-let cols, rows;
-let gridOffsetX, gridOffsetY;
+let idUsuario;
+let nombreUsuario = "";
+let puntosUsuario = 0;
+let infoPuntos = "";
+let noPuedeJugar = false; // 🔹 Nuevo: para bloquear si no hay puntos
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   textAlign(CENTER, CENTER);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  idUsuario = urlParams.get("id");
+
+  nombreUsuario = sessionStorage.getItem("nombreUsuario") || "Jugador";
+  puntosUsuario = parseInt(sessionStorage.getItem("puntosUsuario") || 0);
+
+  actualizarCartel();
 }
 
 function draw() {
-  drawBackground(); // 🔹 Fondo animado en todo momento
+  drawBackground();
+
+  // --- Mostrar nombre y puntos ---
+  fill(255);
+  textSize(18);
+  textAlign(LEFT, TOP);
+  text(`👤 ${nombreUsuario}`, 20, 10);
+  textAlign(RIGHT, TOP);
+  text(`💰 Puntos: ${puntosUsuario}`, width - 20, 10);
+  textAlign(CENTER, CENTER);
 
   if (inMenu) {
     drawMenu();
     return;
   }
 
-  // Dibujar cartas
+  if (noPuedeJugar) {
+    fill(255, 50, 50);
+    textSize(30);
+    text("❌ No tenés suficientes puntos para jugar", width / 2, height / 2);
+    return;
+  }
+
   for (let i = 0; i < cards.length; i++) {
     let x = gridOffsetX + (i % cols) * (cardSize + spacing);
     let y = gridOffsetY + Math.floor(i / cols) * (cardSize + spacing);
     cards[i].display(x, y, cardSize);
   }
 
-  // Contador de revelado
   if (revealing) {
     let elapsed = millis() - revealStartTime;
     let remaining = ceil((revealDuration - elapsed) / 1000);
@@ -69,13 +97,15 @@ function draw() {
     }
   }
 
-  // Vidas
   for (let i = 0; i < lives; i++) {
     fill(255, 0, 0);
-    ellipse(40 + i*40, 90, 30, 30);
+    ellipse(40 + i * 40, 90, 30, 30);
   }
 
-  // Lógica de chequeo
+  fill(255);
+  textSize(20);
+  text(infoPuntos, width / 2, 60);
+
   if (checking && millis() - checkStartTime > checkDelay) {
     if (firstCard.id !== secondCard.id) {
       firstCard.flipped = false;
@@ -90,77 +120,56 @@ function draw() {
     checking = false;
   }
 
-  // Estados de victoria o derrota
-  if (lives <= 0) gameOver = true;
-  if (cards.every(c => c.matched)) gameWon = true;
+  if (lives <= 0) {
+    gameOver = true;
+    resultadoFinal("perder");
+  }
+  if (cards.every((c) => c.matched)) {
+    gameWon = true;
+    resultadoFinal("ganar");
+  }
 
-  if (gameOver) { fill(255,0,0); textSize(40); text("¡GAME OVER!", width/2, height-50); }
-  else if (gameWon) { fill(0,255,0); textSize(40); text("¡GANASTE!", width/2, height-50); }
+  if (gameOver) {
+    fill(255, 0, 0);
+    textSize(40);
+    text("¡GAME OVER!", width / 2, height - 50);
+  } else if (gameWon) {
+    fill(0, 255, 0);
+    textSize(40);
+    text("¡GANASTE!", width / 2, height - 50);
+  }
 
-  // Botón Reiniciar
   fill(200);
-  rect(width-150, 20, 120, 35, 5);
+  rect(width - 150, 20, 120, 35, 5);
   fill(0);
   textSize(16);
-  text("REINICIAR", width-90, 37);
+  text("REINICIAR", width - 90, 37);
 }
 
 function drawMenu() {
   fill(255);
   textSize(45);
-  text("🎰 Juego de Memoria 🎲", width/2, 60);
+  text("🎰 Juego de Memoria 🎲", width / 2, 60);
 
-  // Dificultades
   textSize(25);
   for (let i = 0; i < difficulties.length; i++) {
-    fill(i === selectedDifficulty ? color(0,255,0) : 255);
-    rect(width/2-80, 140 + i*50 - 20, 160, 40, 10);
+    fill(i === selectedDifficulty ? color(0, 255, 0) : 255);
+    rect(width / 2 - 80, 140 + i * 50 - 20, 160, 40, 10);
     fill(0);
-    text(difficulties[i], width/2, 140 + i*50);
+    text(difficulties[i], width / 2, 140 + i * 50);
   }
 
-  // Botón Empezar
   fill(255);
   rectMode(CENTER);
-  rect(width/2, 320, 200, 45, 10);
+  rect(width / 2, 320, 200, 45, 10);
   fill(0);
   textSize(22);
-  text("EMPEZAR JUEGO", width/2, 320);
+  text("EMPEZAR JUEGO", width / 2, 320);
   rectMode(CORNER);
 
-  // Botón Tutorial
-  fill(255);
-  rect(width/2 - 70, 390, 140, 40, 10);
-  fill(0);
-  textSize(18);
-  text("TUTORIAL", width/2, 410);
-
-  // Mostrar tutorial si está activo
-  if (showTutorial) {
-    fill(0, 0, 0, 220);
-    rect(0, 0, width, height);
-    fill(255);
-    textSize(30);
-    text("📘 Cómo Jugar", width/2, 80);
-    textSize(20);
-    textAlign(CENTER, TOP);
-    text(
-      "1️⃣ Elegí una dificultad.\n\n" +
-      "2️⃣ Al iniciar, las cartas se muestran unos segundos.\n\n" +
-      "3️⃣ Encontrá los pares iguales clickeando sobre las cartas.\n\n" +
-      "4️⃣ Cada error te hace perder una vida ❤️.\n\n" +
-      "5️⃣ ¡Ganás cuando encontrás todos los pares!\n\n" +
-      "6️⃣ Si perdés todas las vidas, se termina el juego.\n\n" +
-      "7️⃣ Podés reiniciar o volver al menú en cualquier momento.",
-      width/2, 140
-    );
-    textAlign(CENTER, CENTER);
-
-    fill(255);
-    rect(width/2 - 60, height - 100, 120, 40, 10);
-    fill(0);
-    text("CERRAR", width/2, height - 80);
-  }
+  fill(255, 255, 0);
+  textSize(20);
+  text(infoPuntos, width / 2, 380);
 }
 
 function startGame() {
@@ -170,6 +179,8 @@ function startGame() {
   checking = false;
   firstCard = null;
   secondCard = null;
+  window.actualizado = false;
+  noPuedeJugar = false;
 
   let numCards;
   if (selectedDifficulty === 0) { totalLives = 3; numCards = 6; cols = 3; rows = 2; }
@@ -192,7 +203,6 @@ function startGame() {
   }
   cards = shuffle(cards);
 
-  // Mostrar cartas al inicio
   revealing = true;
   revealStartTime = millis();
   for (let c of cards) c.flipped = true;
@@ -200,54 +210,99 @@ function startGame() {
   if (backButton) backButton.remove();
   backButton = createButton("Atrás");
   backButton.position(20, 20);
-  backButton.style('font-size', '16px');
-  backButton.style('padding', '6px 12px');
-  backButton.style('border-radius', '5px');
-  backButton.style('background-color', '#cccccc');
-  backButton.style('border', '2px solid #999999');
-  backButton.mousePressed(() => { 
-    inMenu = true; 
-    backButton.remove(); 
+  backButton.mousePressed(() => {
+    inMenu = true;
+    backButton.remove();
+    actualizarCartel();
   });
+
+  actualizarPuntos("inicio");
+}
+
+function actualizarCartel() {
+  let costo = [2, 3, 5][selectedDifficulty];
+  let gana = [3, 5, 8][selectedDifficulty];
+  infoPuntos = `Jugar cuesta ${costo} puntos 💰 — Ganás ${gana} si completás 🎉`;
+}
+
+function actualizarPuntos(resultado) {
+  if (!idUsuario) return;
+  let dif = ["Fácil", "Medio", "Difícil"][selectedDifficulty];
+  fetch(`actualizar_puntos.php?id=${idUsuario}&dif=${dif}&res=${resultado}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.error === "no_puntos") {
+        noPuedeJugar = true;
+      } else if (d.puntos !== undefined) {
+        puntosUsuario = d.puntos;
+        sessionStorage.setItem("puntosUsuario", puntosUsuario);
+      }
+    })
+    .catch(err => console.error("Error:", err));
+}
+
+function resultadoFinal(resultado) {
+  if (!window.actualizado) {
+    window.actualizado = true;
+    actualizarPuntos(resultado);
+  }
 }
 
 function mousePressed() {
   if (inMenu) {
-    if (showTutorial) {
-      if (mouseX > width/2 - 60 && mouseX < width/2 + 60 && mouseY > height - 100 && mouseY < height - 60) {
-        showTutorial = false;
+    for (let i = 0; i < difficulties.length; i++) {
+      if (
+        mouseX > width / 2 - 80 &&
+        mouseX < width / 2 + 80 &&
+        mouseY > 140 + i * 50 - 20 &&
+        mouseY < 160 + i * 50
+      ) {
+        selectedDifficulty = i;
+        actualizarCartel();
       }
+    }
+
+    if (
+      mouseX > width / 2 - 100 &&
+      mouseX < width / 2 + 100 &&
+      mouseY > 300 &&
+      mouseY < 340
+    ) {
+      startGame();
       return;
     }
-
-    for (let i = 0; i < difficulties.length; i++) {
-      if (mouseX>width/2-80 && mouseX<width/2+80 && mouseY>140 + i*50-20 && mouseY<160 + i*50)
-        selectedDifficulty=i;
-    }
-    if (mouseX>width/2-100 && mouseX<width/2+100 && mouseY>300 && mouseY<340)
-      startGame();
-
-    if (mouseX > width/2 - 70 && mouseX < width/2 + 70 && mouseY > 390 && mouseY < 430)
-      showTutorial = true;
-
     return;
   }
 
-  if (mouseX>width-150 && mouseX<width-30 && mouseY>20 && mouseY<55) {
+  if (
+    mouseX > width - 150 &&
+    mouseX < width - 30 &&
+    mouseY > 20 &&
+    mouseY < 55
+  ) {
     startGame();
     return;
   }
 
-  if (gameOver || gameWon || checking || revealing) return;
+  if (gameOver || gameWon || checking || revealing || noPuedeJugar) return;
 
   for (let i = 0; i < cards.length; i++) {
     let x = gridOffsetX + (i % cols) * (cardSize + spacing);
     let y = gridOffsetY + Math.floor(i / cols) * (cardSize + spacing);
-    if (mouseX>x && mouseX<x+cardSize && mouseY>y && mouseY<y+cardSize) {
+    if (
+      mouseX > x &&
+      mouseX < x + cardSize &&
+      mouseY > y &&
+      mouseY < y + cardSize
+    ) {
       if (!cards[i].flipped && !cards[i].matched) {
         cards[i].flipped = true;
         if (!firstCard) firstCard = cards[i];
-        else if (!secondCard) { secondCard = cards[i]; checking=true; checkStartTime=millis(); }
+        else if (!secondCard) {
+          secondCard = cards[i];
+          checking = true;
+          checkStartTime = millis();
+        }
       }
     }
   }
@@ -268,7 +323,6 @@ class Card {
 }
 
 function drawBackground() {
-  // 🔹 Fondo animado tipo degradado dinámico
   for (let y = 0; y < height; y++) {
     let t = millis() * 0.0002;
     let inter = map(y, 0, height, 0, 1);
